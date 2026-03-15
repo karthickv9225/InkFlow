@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  passwordHash String
+  username  String     @unique
+  fullName  String?
+  avatarUrl String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  blogs    Blog[]
+  likes    Like[]
+  comments Comment[]
+
+  @@index([email])
+  @@index([username])
+}
+
+model Blog {
+  id          String     @id @default(uuid())
+  userId      String
+  title       String
+  slug        String     @unique
+  content     String
+  excerpt     String?
+  isPublished Boolean    @default(false)
+  viewCount   Int        @default(0)
+  likeCount   Int        @default(0)
+  commentCount Int       @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  publishedAt DateTime?
+
+  author   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes    Like[]
+  comments Comment[]
+
+  @@index([userId])
+  @@index([slug])
+  @@index([isPublished])
+  @@index([createdAt])
+  @@index([isPublished, publishedAt])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  blogId    String
+  createdAt DateTime @default(now())
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blog Blog  @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, blogId])
+  @@index([blogId])
+  @@index([userId])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  blogId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blog Blog  @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([blogId])
+  @@index([userId])
+  @@index([createdAt])
+}
