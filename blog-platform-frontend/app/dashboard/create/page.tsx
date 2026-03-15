@@ -95,7 +95,7 @@ export default function CreateBlogPage() {
         return;
       }
 
-      const response = await api.post('/blogs', {
+      await api.post('/blogs', {
         title: formData.title,
         slug: formData.slug,
         content: formData.content,
