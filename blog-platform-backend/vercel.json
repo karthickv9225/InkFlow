@@ -1,15 +1,9 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "outputDirectory": ".next",
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "api/handler.ts": {
-      "memory": 1024,
-      "maxDuration": 60,
-      "runtime": "nodejs20.x"
-    }
   }
 }
+

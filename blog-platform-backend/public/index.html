@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>InkFlow Blog API</title>
+</head>
+<body>
+    <h1>InkFlow Blog Platform API</h1>
+    <p>Version: 1.0.0</p>
+    <p>API is running. Use the following endpoints:</p>
+    <ul>
+        <li>POST /api/auth/register - Register user</li>
+        <li>POST /api/auth/login - Login user</li>
+        <li>GET /api/public/feed - Get published blogs</li>
+        <li>GET /api/public/blogs/:slug - Get blog by slug</li>
+        <li>POST /api/blogs - Create blog (auth required)</li>
+        <li>GET /api/blogs - Get user's blogs (auth required)</li>
+        <li>PATCH /api/blogs/:id - Update blog (auth required)</li>
+        <li>DELETE /api/blogs/:id - Delete blog (auth required)</li>
+        <li>GET /api/health - Health check</li>
+    </ul>
+</body>
+</html>
