@@ -36,7 +36,6 @@ interface FeedResponse {
 }
 
 export default function HomePage() {
-  const router = useRouter();
   const { user } = useAuthStore();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
