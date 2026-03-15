@@ -1,7 +1,8 @@
-import express, { Express, Request, Response } from 'express';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import express from 'express';
 import cors from 'cors';
 
-const app: Express = express();
+const app = express();
 
 // Middleware
 app.use(cors({
@@ -16,8 +17,27 @@ const mockBlogsStorage: any = {};
 const mockLikesStorage: any = {};
 const mockCommentsStorage: any = {};
 
+// Root endpoint
+app.get('/', (req: express.Request, res: express.Response): void => {
+  res.json({ 
+    message: 'InkFlow Blog Platform API',
+    version: '1.0.0',
+    endpoints: {
+      auth: ['/auth/register', '/auth/login'],
+      public: ['/public/feed', '/public/blogs/:slug'],
+      blogs: ['/blogs', '/blogs/:id'],
+      health: '/health'
+    }
+  });
+});
+
+// Health check
+app.get('/health', (req: express.Request, res: express.Response): void => {
+  res.json({ status: 'ok' });
+});
+
 // Auth Routes
-app.post('/auth/register', (req: Request, res: Response): void => {
+app.post('/auth/register', (req: express.Request, res: express.Response): void => {
   try {
     const { email, username, password } = req.body;
     
@@ -50,7 +70,7 @@ app.post('/auth/register', (req: Request, res: Response): void => {
   }
 });
 
-app.post('/auth/login', (req: Request, res: Response): void => {
+app.post('/auth/login', (req: express.Request, res: express.Response): void => {
   try {
     const { email, password } = req.body;
 
@@ -77,7 +97,7 @@ app.post('/auth/login', (req: Request, res: Response): void => {
 });
 
 // Public Routes
-app.get('/public/feed', (req: Request, res: Response): void => {
+app.get('/public/feed', (req: express.Request, res: express.Response): void => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = 10;
@@ -98,7 +118,7 @@ app.get('/public/feed', (req: Request, res: Response): void => {
   }
 });
 
-app.get('/public/blogs/:slug', (req: Request, res: Response): void => {
+app.get('/public/blogs/:slug', (req: express.Request, res: express.Response): void => {
   try {
     const blog = Object.values(mockBlogsStorage).find(
       (b: any) => b.slug === req.params.slug && b.isPublished
@@ -116,7 +136,7 @@ app.get('/public/blogs/:slug', (req: Request, res: Response): void => {
 });
 
 // Blogs Routes (Protected)
-app.post('/blogs', (req: Request, res: Response): void => {
+app.post('/blogs', (req: express.Request, res: express.Response): void => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -149,7 +169,7 @@ app.post('/blogs', (req: Request, res: Response): void => {
   }
 });
 
-app.get('/blogs', (req: Request, res: Response): void => {
+app.get('/blogs', (req: express.Request, res: express.Response): void => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -170,7 +190,7 @@ app.get('/blogs', (req: Request, res: Response): void => {
   }
 });
 
-app.patch('/blogs/:id', (req: Request, res: Response): void => {
+app.patch('/blogs/:id', (req: express.Request, res: express.Response): void => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -199,7 +219,7 @@ app.patch('/blogs/:id', (req: Request, res: Response): void => {
   }
 });
 
-app.delete('/blogs/:id', (req: Request, res: Response): void => {
+app.delete('/blogs/:id', (req: express.Request, res: express.Response): void => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -229,7 +249,7 @@ app.delete('/blogs/:id', (req: Request, res: Response): void => {
 });
 
 // Like Routes
-app.post('/public/blogs/:id/like', (req: Request, res: Response): void => {
+app.post('/public/blogs/:id/like', (req: express.Request, res: express.Response): void => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -263,7 +283,7 @@ app.post('/public/blogs/:id/like', (req: Request, res: Response): void => {
 });
 
 // Comments Routes
-app.post('/public/blogs/:id/comments', (req: Request, res: Response): void => {
+app.post('/public/blogs/:id/comments', (req: express.Request, res: express.Response): void => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -297,7 +317,7 @@ app.post('/public/blogs/:id/comments', (req: Request, res: Response): void => {
   }
 });
 
-app.get('/public/blogs/:id/comments', (req: Request, res: Response): void => {
+app.get('/public/blogs/:id/comments', (req: express.Request, res: express.Response): void => {
   try {
     const blog = Object.values(mockBlogsStorage).find((b: any) => b.id === req.params.id);
     if (!blog || !(blog as any).isPublished) {
@@ -311,23 +331,6 @@ app.get('/public/blogs/:id/comments', (req: Request, res: Response): void => {
   }
 });
 
-// Health check
-app.get('/health', (req: Request, res: Response): void => {
-  res.json({ status: 'ok' });
-});
-
-// Root endpoint
-app.get('/', (req: Request, res: Response): void => {
-  res.json({ 
-    message: 'InkFlow Blog Platform API',
-    version: '1.0.0',
-    endpoints: {
-      auth: ['/auth/register', '/auth/login'],
-      public: ['/public/feed', '/public/blogs/:slug'],
-      blogs: ['/blogs', '/blogs/:id'],
-      health: '/health'
-    }
-  });
-});
-
-export default app;
+export default (req: VercelRequest, res: VercelResponse) => {
+  return app(req, res);
+};
